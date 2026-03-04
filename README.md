@@ -34,5 +34,6 @@ docker run --name psycare-postgres \
 -p 5433:5432 -d postgres:16
 ```
 Run the API:
-
-`dotnet run --project PsyCare.API`
+```
+dotnet run --project PsyCare.API
+```
