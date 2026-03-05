@@ -27,13 +27,14 @@ public class ExceptionMiddleware
                 error = ex.Message
             }));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(new
             {
-                error = "An unexpected error occurred."
+                error = ex.Message,
+                stackTrace = ex.StackTrace
             }));
         }
     }

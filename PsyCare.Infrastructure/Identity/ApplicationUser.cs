@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace PsyCare.Domain.Entities;
+namespace PsyCare.Infrastructure.Identity;
 
-public class ApplicationUser : IdentityUser<string>
+public class ApplicationUser : IdentityUser
 {
     public Guid TenantId { get; set; }
 

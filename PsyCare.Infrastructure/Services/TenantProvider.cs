@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using PsyCare.Application.Common.Interfaces;
 
@@ -14,15 +15,14 @@ public class TenantProvider : ITenantProvider
 
     public Guid GetTenantId()
     {
-        var tenantHeader = _httpContextAccessor
+        var tenantClaim = _httpContextAccessor
             .HttpContext?
-            .Request
-            .Headers["X-Tenant"]
-            .FirstOrDefault();
+            .User?
+            .FindFirst("tenantId");
 
-        if (Guid.TryParse(tenantHeader, out var tenantId))
-            return tenantId;
+        if (tenantClaim == null)
+            throw new Exception("TenantId claim missing in JWT token.");
 
-        throw new Exception("TenantId not found in request header.");
+        return Guid.Parse(tenantClaim.Value);
     }
 }
