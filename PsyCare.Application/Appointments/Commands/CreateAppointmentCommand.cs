@@ -4,6 +4,7 @@ using PsyCare.Domain.Enums;
 namespace PsyCare.Application.Appointments.Commands;
 
 public record CreateAppointmentCommand(
+    Guid TenantId,
     Guid PsychologistId,
     Guid PatientId,
     DateTime StartTime,

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PsyCare.Application.Appointments.Commands;
+using PsyCare.Application.Appointments.Queries;
 
 namespace PsyCare.API.Controllers;
 
@@ -25,4 +26,27 @@ public class AppointmentsController : ControllerBase
             AppointmentId = appointmentId
         });
     }
+
+    // API appointment availability endpoint
+    [HttpGet("availability")]
+    public async Task<IActionResult> GetAvailability(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime date)
+    {
+        var result = await _mediator.Send(
+            new GetAvailableSlotsQuery(tenantId, psychologistId, date));
+
+        return Ok(result);
+    }
+
+    // Add slot generation endpoint for psychologists to create availability
+    [HttpPost("generate-slots")]
+    public async Task<IActionResult> GenerateSlots(
+        GenerateAvailabilitySlotsCommand command)
+    {
+        await _mediator.Send(command);
+        return Ok();
+    }
+
 }

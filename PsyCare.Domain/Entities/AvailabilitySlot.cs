@@ -5,6 +5,8 @@ public class AvailabilitySlot
     public Guid Id { get; private set; }
     public Guid PsychologistId { get; private set; }
 
+    public Guid TenantId { get; private set; }
+
     public DateTime StartTime { get; private set; }
     public DateTime EndTime { get; private set; }
 
@@ -12,13 +14,14 @@ public class AvailabilitySlot
 
     private AvailabilitySlot() { }
 
-    public AvailabilitySlot(Guid psychologistId, DateTime startTime, DateTime endTime)
+    public AvailabilitySlot(Guid tenantId,Guid psychologistId, DateTime startTime, DateTime endTime)
     {
         if (endTime <= startTime)
             throw new ArgumentException("End time must be greater than start time.");
 
         Id = Guid.NewGuid();
         PsychologistId = psychologistId;
+        TenantId = tenantId;
         StartTime = startTime;
         EndTime = endTime;
         IsBooked = false;

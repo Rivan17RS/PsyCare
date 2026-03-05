@@ -8,6 +8,8 @@ public class Appointment
     public Guid PsychologistId { get; private set; }
     public Guid PatientId { get; private set; }
 
+    public Guid TenantId { get; private set; }
+
     public DateTime StartTime { get; private set; }
     public DateTime EndTime { get; private set; }
 
@@ -20,6 +22,7 @@ public class Appointment
     private Appointment() { }
 
     public Appointment(
+        Guid tenantId,
         Guid psychologistId,
         Guid patientId,
         DateTime start,
@@ -30,6 +33,7 @@ public class Appointment
             throw new ArgumentException("End time must be greater than start time");
 
         Id = Guid.NewGuid();
+        TenantId = tenantId;
         PsychologistId = psychologistId;
         PatientId = patientId;
         StartTime = start;

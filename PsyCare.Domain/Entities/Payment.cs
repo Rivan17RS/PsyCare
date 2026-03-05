@@ -5,6 +5,7 @@ namespace PsyCare.Domain.Entities;
 public class Payment
 {
     public Guid Id { get; private set; }
+    public Guid TenantId { get; private set; }
     public Guid AppointmentId { get; private set; }
 
     public decimal Amount { get; private set; }
@@ -17,12 +18,13 @@ public class Payment
 
     private Payment() { }
 
-    public Payment(Guid appointmentId, decimal amount, decimal vatAmount, string externalReference)
+    public Payment(Guid tenantId, Guid appointmentId, decimal amount, decimal vatAmount, string externalReference)
     {
         if (amount <= 0)
             throw new ArgumentException("Amount must be greater than zero.");
 
         Id = Guid.NewGuid();
+        TenantId = tenantId;
         AppointmentId = appointmentId;
         Amount = amount;
         VatAmount = vatAmount;

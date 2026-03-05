@@ -19,10 +19,11 @@ public class AppointmentRepository : IAppointmentRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> IsSlotBookedAsync(Guid psychologistId, DateTime start, DateTime end, CancellationToken cancellationToken)
+    public async Task<bool> IsSlotBookedAsync(Guid tenantId, Guid psychologistId, DateTime start, DateTime end, CancellationToken cancellationToken)
     {
         return await _context.Appointments
             .AnyAsync(a =>
+                a.TenantId == tenantId &&
                 a.PsychologistId == psychologistId &&
                 a.StartTime == start &&
                 a.EndTime == end,

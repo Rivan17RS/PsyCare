@@ -1,11 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using PsyCare.Infrastructure.Persistence;
-using PsyCare.Application.Abstractions.Persistence;
 using PsyCare.Infrastructure.Persistence.Repositories;
+using PsyCare.Infrastructure.Services;
+using PsyCare.Infrastructure.Identity;
+using PsyCare.Application.Abstractions.Persistence;
 using PsyCare.Application.Appointments.Commands;
+using PsyCare.Application.Common.Interfaces;
 using PsyCare.API.Middlewares;
-using MediatR;
 using PsyCare.Application;
+using MediatR;
+using System.Text;
+using PsyCare.Domain.Entities;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +21,46 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services
+    .AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();    
+
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+
+builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+
+builder.Services.AddScoped<JwtTokenService>();
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+    };
+});
 
 builder.Services.AddMediatR(cfg =>
 {
@@ -58,10 +103,19 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+// Seed roles creation (default)
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await IdentitySeeder.SeedRolesAsync(roleManager);
+}
+
+app.UseMiddleware<TenantMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

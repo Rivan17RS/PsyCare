@@ -20,6 +20,7 @@ public class CreateAppointmentCommandHandler
         CancellationToken cancellationToken)
     {
         var isBooked = await _repository.IsSlotBookedAsync(
+            request.TenantId,
             request.PsychologistId,
             request.StartTime,
             request.EndTime,
@@ -29,6 +30,7 @@ public class CreateAppointmentCommandHandler
             throw new InvalidOperationException("This time slot is already booked.");
 
         var appointment = new Appointment(
+            request.TenantId,
             request.PsychologistId,
             request.PatientId,
             request.StartTime,
