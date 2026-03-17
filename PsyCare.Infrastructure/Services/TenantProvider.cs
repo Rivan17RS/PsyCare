@@ -15,14 +15,20 @@ public class TenantProvider : ITenantProvider
 
     public Guid GetTenantId()
     {
-        var tenantClaim = _httpContextAccessor
-            .HttpContext?
-            .User?
-            .FindFirst("tenantId");
+        var httpContext = _httpContextAccessor.HttpContext;
+
+        if (httpContext == null)
+            throw new Exception("HttpContext not available.");
+
+        var tenantClaim = httpContext.User.FindFirst("tenantId");
 
         if (tenantClaim == null)
             throw new Exception("TenantId claim missing in JWT token.");
 
-        return Guid.Parse(tenantClaim.Value);
+        if (!Guid.TryParse(tenantClaim.Value, out var tenantId))
+            throw new Exception("Invalid TenantId in JWT.");
+
+        return tenantId;
     }
+
 }

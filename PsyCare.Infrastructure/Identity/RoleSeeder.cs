@@ -4,7 +4,7 @@ namespace PsyCare.Infrastructure.Identity;
 
 public static class RoleSeeder
 {
-    public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
+    public static async Task SeedRoles(RoleManager<IdentityRole<Guid>> roleManager)
     {
         string[] roles =
         {
@@ -17,7 +17,12 @@ public static class RoleSeeder
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
+            {
+                await roleManager.CreateAsync(new IdentityRole<Guid>
+                {
+                    Name = role
+                });
+            }
         }
     }
 }
