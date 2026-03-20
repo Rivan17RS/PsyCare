@@ -20,7 +20,9 @@ public class TenantProvider : ITenantProvider
         if (httpContext == null)
             throw new Exception("HttpContext not available.");
 
-        var tenantClaim = httpContext.User.FindFirst("tenantId");
+        var tenantClaim =
+            httpContext.User.FindFirst("tenantId") ??
+            httpContext.User.FindFirst("TenantId"); // fallback for different claim naming
 
         if (tenantClaim == null)
             throw new Exception("TenantId claim missing in JWT token.");

@@ -2,7 +2,7 @@ import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
 const apiClient = axios.create({
-  baseURL: "https://localhost:5001/api",
+  baseURL: "http://localhost:5056/api",
 });
 
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {

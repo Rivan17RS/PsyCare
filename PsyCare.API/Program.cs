@@ -113,11 +113,14 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.UseMiddleware<TenantMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors("frontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("frontend");
+
+app.UseMiddleware<TenantMiddleware>();
 
 app.MapControllers();
 app.Run();
