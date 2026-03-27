@@ -24,7 +24,7 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-80">
-        <h1 className="text-2xl font-bold text-center mb-6">PsyCare</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">PsicoClinicas</h1>
 
         <input
           className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -46,7 +46,7 @@ export default function LoginPage() {
           className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
           onClick={login}
         >
-          Login
+          Iniciar Sesion
         </button>
       </div>
     </div>

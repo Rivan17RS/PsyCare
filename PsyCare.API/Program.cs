@@ -84,9 +84,34 @@ builder.Services.AddMediatR(cfg =>
 });
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+    {
+        options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Enter JWT token like: Bearer {your_token}"
+        });
+
+        options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+            }
+        });
+    });
 
 var app = builder.Build();
 
@@ -96,7 +121,40 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider
         .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
+    var userManager = scope.ServiceProvider
+        .GetRequiredService<UserManager<ApplicationUser>>();
+
+    // 1. Seed roles
     await RoleSeeder.SeedRoles(roleManager);
+
+    // 2. Seed Platform Admin
+    var adminEmail = "admin@psycare.com";
+    var adminPassword = "Admin123!";
+
+    var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+
+    if (existingAdmin == null)
+    {
+        var admin = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            FullName = "Platform Admin",
+            TenantId = Guid.Empty // platform-level user
+        };
+
+        var result = await userManager.CreateAsync(admin, adminPassword);
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "PlatformAdmin");
+        }
+        else
+        {
+            throw new Exception("Failed to create Platform Admin: " +
+                string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+    }
 }
 
 // Configure the HTTP request pipeline.
