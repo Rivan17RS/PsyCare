@@ -98,7 +98,7 @@ public class ClinicController : ControllerBase
         return Ok(users);
     }
 
-    [AuthorizeClinicAdmin]
+    [Authorize]
     [HttpGet("psychologists")]
     public async Task<IActionResult> GetPsychologists()
     {
@@ -108,12 +108,18 @@ public class ClinicController : ControllerBase
             .Where(u => u.TenantId == tenantId)
             .ToListAsync();
 
-        var psychologists = new List<ApplicationUser>();
+        var psychologists = new List<object>();
 
         foreach (var user in users)
         {
             if (await _userManager.IsInRoleAsync(user, "Psychologist"))
-                psychologists.Add(user);
+            {
+                psychologists.Add(new
+                {
+                    user.Id,
+                    user.FullName
+                });
+            }
         }
 
         return Ok(psychologists);

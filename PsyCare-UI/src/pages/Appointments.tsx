@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type Slot = {
   startTime: string;
@@ -7,24 +8,79 @@ type Slot = {
   isBooked?: boolean;
 };
 
+type Psychologist = {
+  id: string;
+  fullName: string;
+};
+
 export default function Appointments() {
+  const navigate = useNavigate();
+  
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [psychologists, setPsychologists] = useState<Psychologist[]>([]);
+  const [selectedPsychologist, setSelectedPsychologist] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState("");
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIxODA5ODdiLTNlZjktNDdkZi05N2E3LWUyM2JjN2NhZWNkMyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImZlcm5hbmRhQG1pbmRjYXJlLmNvbSIsInRlbmFudElkIjoiZmQ2M2Q2M2EtYmJkMS00M2ZkLWE4OGYtODgwOGY0MTBkNmRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiUHN5Y2hvbG9naXN0IiwiZXhwIjoxNzc0Njc0MDk1LCJpc3MiOiJQc3lDYXJlIiwiYXVkIjoiUHN5Q2FyZVVzZXJzIn0._XpHQ6XVhDlb5ysDtCZm83fydmDHaiQhqe9YtnxcjGw";
+  // stored token
+  const token = localStorage.getItem("token");
 
+  // Fetch psychologists when component loads
   useEffect(() => {
-    if (!date) return;
+    const fetchPsychologists = async () => {
+      try {
+        if (!token) {
+          console.error("Token no encontrado");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:5056/api/clinics/psychologists",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          console.error("Error obteniendo psicólogos");
+          return;
+        }
+
+        const data = await response.json();
+        setPsychologists(data);
+
+        // Select first psychologist by default
+        if (data.length > 0) {
+          setSelectedPsychologist(data[0].id);
+        }
+      } catch (error) {
+        console.error("Error cargando psicólogos:", error);
+      }
+    };
+
+    fetchPsychologists();
+  }, []);
+
+  // Fetch availability slots
+  useEffect(() => {
+    if (!date || !selectedPsychologist) return;
 
     const fetchSlots = async () => {
       try {
         setLoading(true);
 
+        if (!token) {
+          console.error("Token no encontrado");
+          return;
+        }
+
         const formattedDate = `${date}T00:00:00Z`;
 
         const response = await fetch(
-          `http://localhost:5056/api/Appointments/availability?psychologistId=2180987b-3ef9-47df-97a7-e23bc7caecd3&date=${formattedDate}`,
+          `http://localhost:5056/api/Appointments/availability?psychologistId=${selectedPsychologist}&date=${formattedDate}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -39,7 +95,6 @@ export default function Appointments() {
 
         const data = await response.json();
 
-        // ✅ Sort slots by start time
         const sorted = data.sort(
           (a: Slot, b: Slot) =>
             new Date(a.startTime).getTime() -
@@ -55,11 +110,16 @@ export default function Appointments() {
     };
 
     fetchSlots();
-  }, [date]);
+  }, [date, selectedPsychologist]);
 
-  // ✅ BOOK APPOINTMENT
+  // Book appointment
   const handleBook = async (slot: Slot) => {
     try {
+      if (!token) {
+        console.error("Token no encontrado");
+        return;
+      }
+
       const response = await fetch(
         "http://localhost:5056/api/Appointments",
         {
@@ -70,23 +130,25 @@ export default function Appointments() {
           },
           body: JSON.stringify({
             psychologistId: slot.psychologistId,
-            start: slot.startTime,
-            end: slot.endTime,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            mode: 0
           }),
         }
       );
 
       if (!response.ok) {
-        console.error("Error creando cita");
+        const errorText = await response.text();
+        console.error("Error creando cita:", errorText);
         return;
       }
 
       const data = await response.json();
       console.log("Cita creada:", data);
 
-      alert("Cita reservada correctamente ✅");
+      navigate("/mis-citas");
 
-      // 🔄 Refresh slots after booking
+      // Update UI
       setSlots((prev) =>
         prev.map((s) =>
           s.startTime === slot.startTime
@@ -100,53 +162,119 @@ export default function Appointments() {
   };
 
   return (
-    <div>
-      <h1>Reservar Cita</h1>
+  <div className="min-h-screen bg-gray-100 p-6">
+    <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+      
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Reservar Cita
+        </h1>
 
-      <p>Selecciona una fecha para ver los horarios disponibles.</p>
-
-      <div>
-        <label htmlFor="fecha">Selecciona una fecha:</label>
-        <input
-          type="date"
-          id="fecha"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
+        <p className="text-gray-500 mt-2">
+          Selecciona un psicólogo y una fecha para encontrar horarios disponibles.
+        </p>
       </div>
 
+      {/* Filters */}
+      <div className="grid md:grid-cols-2 gap-4 mb-8">
+        
+        {/* Psychologist dropdown */}
+        <div>
+          <label
+            htmlFor="psychologist"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Psicólogo
+          </label>
+
+          <select
+            id="psychologist"
+            value={selectedPsychologist}
+            onChange={(e) => setSelectedPsychologist(e.target.value)}
+            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400"
+          >
+            {psychologists.length === 0 ? (
+              <option>No hay psicólogos disponibles</option>
+            ) : (
+              psychologists.map((psychologist) => (
+                <option
+                  key={psychologist.id}
+                  value={psychologist.id}
+                >
+                  {psychologist.fullName}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+
+        {/* Date picker */}
+        <div>
+          <label
+            htmlFor="fecha"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Fecha
+          </label>
+
+          <input
+            type="date"
+            id="fecha"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+      </div>
+
+      {/* Slots */}
       <div>
-        <h3>Horarios disponibles</h3>
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">
+          Horarios disponibles
+        </h3>
 
         {!date ? (
-          <p>Selecciona una fecha para ver disponibilidad</p>
+          <div className="bg-gray-50 p-4 rounded-lg text-gray-500">
+            Selecciona una fecha para ver disponibilidad.
+          </div>
         ) : loading ? (
-          <p>Cargando...</p>
+          <div className="bg-blue-50 p-4 rounded-lg text-blue-600">
+            Cargando horarios...
+          </div>
         ) : slots.length === 0 ? (
-          <p>No hay horarios disponibles</p>
+          <div className="bg-yellow-50 p-4 rounded-lg text-yellow-700">
+            No hay horarios disponibles para esta fecha.
+          </div>
         ) : (
-          slots.map((slot, index) => (
-            <button
-              key={index}
-              onClick={() => handleBook(slot)}
-              disabled={slot.isBooked}
-              style={{
-                display: "block",
-                margin: "8px 0",
-                padding: "10px",
-                cursor: slot.isBooked ? "not-allowed" : "pointer",
-                backgroundColor: slot.isBooked ? "#ccc" : "#fff",
-              }}
-            >
-              {formatHour(slot.startTime)} -{" "}
-              {formatHour(slot.endTime)}
-              {slot.isBooked && " (Reservado)"}
-            </button>
-          ))
+          <div className="grid md:grid-cols-2 gap-4">
+            {slots.map((slot) => (
+              <button
+                key={`${slot.psychologistId}-${slot.startTime}`}
+                onClick={() => handleBook(slot)}
+                disabled={slot.isBooked}
+                className={`p-4 rounded-xl border transition font-medium ${
+                  slot.isBooked
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-white hover:bg-blue-500 hover:text-white border-gray-300"
+                }`}
+              >
+                {formatHour(slot.startTime)} -{" "}
+                {formatHour(slot.endTime)}
+
+                {slot.isBooked && (
+                  <span className="block text-sm mt-2">
+                    Reservado
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 // Helper

@@ -6,7 +6,7 @@ using PsyCare.Domain.Enums;
 namespace PsyCare.Application.Appointments.Commands;
 
 public class CreateAppointmentCommandHandler 
-    : IRequestHandler<CreateAppointmentCommand, Guid>
+    : IRequestHandler<CreateAppointmentInternalCommand, Guid>
 {
     private readonly IAppointmentRepository _repository;
 
@@ -16,7 +16,7 @@ public class CreateAppointmentCommandHandler
     }
 
     public async Task<Guid> Handle(
-        CreateAppointmentCommand request,
+        CreateAppointmentInternalCommand request,
         CancellationToken cancellationToken)
     {
         var isBooked = await _repository.IsSlotBookedAsync(

@@ -30,11 +30,27 @@ public class AppointmentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateAppointmentCommand command)
     {
-        var appointmentId = await _mediator.Send(command);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+            return Unauthorized();
+
+        var tenantId = _tenantProvider.GetTenantId();
+
+        var enrichedCommand = new CreateAppointmentInternalCommand(
+            tenantId,
+            command.PsychologistId,
+            Guid.Parse(userId),
+            command.StartTime,
+            command.EndTime,
+            command.Mode
+        );
+
+        var appointmentId = await _mediator.Send(enrichedCommand);
 
         return Ok(new
         {
-            AppointmentId = appointmentId
+            appointmentId
         });
     }
 
