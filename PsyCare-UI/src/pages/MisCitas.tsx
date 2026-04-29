@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+
 
 type Appointment = {
   appointmentId: string;
@@ -57,11 +59,11 @@ export default function MisCitas() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Mis Citas
-        </h1>
+      <Layout>
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            Mis Citas
+          </h1>
 
         <p className="text-gray-500 mb-6">
           Aquí puedes ver tus próximas sesiones agendadas.
@@ -108,7 +110,7 @@ export default function MisCitas() {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }
 

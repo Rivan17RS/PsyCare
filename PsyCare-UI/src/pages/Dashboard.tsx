@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../api/apiClient";
-import Navbar from "../components/Navbar";
+import Layout from "../components/Layout";
+
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -17,9 +18,7 @@ export default function Dashboard() {
   if (!user) return <p className="p-4">Loading...</p>;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <Navbar />
-
+    <Layout>
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold mb-2 text-gray-800">
           Bienvenid@, {user.fullName}
@@ -61,7 +60,7 @@ export default function Dashboard() {
             </p>
 
             <a
-              href="/appointments"
+              href="/agendar-cita"
               className="inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
               Reservar ahora
@@ -105,6 +104,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>  
   );
 }

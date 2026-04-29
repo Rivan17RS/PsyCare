@@ -15,7 +15,7 @@ export default function LoginPage() {
       });
 
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/inicio");
     } catch (err) {
       alert("Invalid credentials");
     }
