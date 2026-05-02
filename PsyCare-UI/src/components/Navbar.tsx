@@ -42,6 +42,11 @@ export default function Navbar() {
           Mis Citas
         </button>
 
+        <button 
+          onClick={() => navigate("/historial")}>
+          Historial
+        </button>
+
         <button
           onClick={logout}
           className="text-red-500 hover:underline"

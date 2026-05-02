@@ -26,13 +26,25 @@ public class AvailabilityRepository : IAvailabilityRepository
         DateTime date,
         CancellationToken cancellationToken)
     {
-        return await _context.AvailabilitySlots
+        var slots = await _context.AvailabilitySlots
             .Where(s =>
                 s.TenantId == tenantId &&
                 s.PsychologistId == psychologistId &&
                 s.StartTime.Date == date.Date &&
                 !s.IsBooked)
             .ToListAsync(cancellationToken);
+
+        var now = DateTime.UtcNow;
+
+        // Filter past hours if today
+        if (date.Date == DateTime.UtcNow.Date)
+        {
+            slots = slots
+                .Where(s => s.StartTime > now)
+                .ToList();
+        }
+
+        return slots;
     }
 
     public async Task UpdateAsync(AvailabilitySlot slot, CancellationToken cancellationToken)

@@ -93,4 +93,25 @@ public class AppointmentsController : ControllerBase
         return Ok();
     }
 
+    [AuthorizePatient]
+    [HttpPost("cancel")]
+    public async Task<IActionResult> CancelAppointment([FromQuery] Guid appointmentId)
+    {
+        await _mediator.Send(new CancelAppointmentCommand(appointmentId));
+        return Ok();
+    }
+
+    [AuthorizePatientOrPsychologist]
+    [HttpGet("history")]
+    public async Task<IActionResult> GetHistory()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var result = await _mediator.Send(
+            new GetAppointmentHistoryQuery(userId!)
+        );
+
+        return Ok(result);
+    }
+
 }

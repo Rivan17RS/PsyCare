@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Appointments from "./pages/Appointments";
 import MisCitas from "./pages/MisCitas";
 import LogoutPage from "./pages/LogoutPage";
+import HistorialCitas from "./pages/HistorialCitas";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/agendar-cita" element={<Appointments />} />
       <Route path="/mis-citas" element={<MisCitas />} />
       <Route path="/logout" element={<LogoutPage />} />
+      <Route path="/historial" element={<HistorialCitas />} />
     </Routes>
   );
 

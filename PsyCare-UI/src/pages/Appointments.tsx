@@ -223,6 +223,7 @@ export default function Appointments() {
             type="date"
             id="fecha"
             value={date}
+            min={new Date().toISOString().split("T")[0]}
             onChange={(e) => setDate(e.target.value)}
             className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400"
           />

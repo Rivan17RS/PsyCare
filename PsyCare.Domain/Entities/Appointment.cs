@@ -69,4 +69,16 @@ public class Appointment
 
         MeetingLink = link;
     }
+
+    // Appointment status logic for NoShow
+    public void MarkAsNoShow()
+    {
+        if (Status == AppointmentStatus.Cancelled ||
+            Status == AppointmentStatus.Completed)
+        {
+            throw new InvalidOperationException("Cannot mark this appointment as NoShow.");
+        }
+
+        Status = AppointmentStatus.NoShow;
+    }
 }
