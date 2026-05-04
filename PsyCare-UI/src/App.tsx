@@ -5,6 +5,7 @@ import Appointments from "./pages/Appointments";
 import MisCitas from "./pages/MisCitas";
 import LogoutPage from "./pages/LogoutPage";
 import HistorialCitas from "./pages/HistorialCitas";
+import WelcomePage from "./pages/WelcomePage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/mis-citas" element={<MisCitas />} />
       <Route path="/logout" element={<LogoutPage />} />
       <Route path="/historial" element={<HistorialCitas />} />
+      <Route path="/welcome" element={<WelcomePage />} />
     </Routes>
   );
 
