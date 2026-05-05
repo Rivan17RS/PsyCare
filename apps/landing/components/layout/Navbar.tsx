@@ -29,8 +29,8 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6">
 
           <nav className="flex items-center gap-6 text-sm">
-            <Link href="#servicios">Servicios</Link>
-            <Link href="#como">Cómo funciona</Link>
+            <Link href="/#servicios">Servicios</Link>
+            <Link href="/#como">Cómo funciona</Link>
             <Link href="/test">Test</Link>
             {/*<Link href="/plataforma">Plataforma</Link>*/}
           </nav>
