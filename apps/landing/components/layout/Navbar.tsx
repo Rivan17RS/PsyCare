@@ -14,7 +14,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="http://localhost:5173/welcome" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image
             src="/PsicoClinicas-logo.png"
             alt="PsicoClinicas"
@@ -32,11 +32,11 @@ export default function Navbar() {
             <Link href="#servicios">Servicios</Link>
             <Link href="#como">Cómo funciona</Link>
             <Link href="/test">Test</Link>
-            <Link href="/plataforma">Plataforma</Link>
+            {/*<Link href="/plataforma">Plataforma</Link>*/}
           </nav>
 
           <Link
-            href={link}
+            href={"https://wa.me/50683610506?text=Hola%20quiero%20agendar%20una%20sesión%20en%20PsicoClinicas"}
             className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-4 py-2 rounded-lg text-sm transition"
           >
             Agendar

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getPrimaryLink } from "@/config/booking";
+import { getWhatsAppLink } from "@/config/booking";
 
 const anxietyQuestions = [
   "¿Te has sentido nervioso o ansioso?",
@@ -104,18 +104,20 @@ export default function TestPage() {
   const anxietyLevel = getLevel(anxietyScore);
   const depressionLevel = getLevel(depressionScore);
 
-  // WhatsApp
-  const linkBase = getPrimaryLink();
-
-  const whatsappMessage = encodeURIComponent(
-    `Hola, hice el test en PsicoClinicas.\n\nAnsiedad: ${anxietyLevel} (${anxietyScore})\nEstado de ánimo: ${depressionLevel} (${depressionScore})\n\nMe gustaría agendar una sesión.`
-  );
-
-  const separator = linkBase.includes("?") ? "&" : "?";
-  const whatsappLink = `${linkBase}${separator}text=${whatsappMessage}`;
-
   // Progress
   const answeredCount = answers.filter((a) => a !== undefined).length;
+
+  // WhatsApp message
+  const message = `
+    Hola, hice el test en PsicoClinicas.
+
+    Ansiedad: ${anxietyLevel} (${anxietyScore})
+    Estado de ánimo: ${depressionLevel} (${depressionScore})
+
+    Me gustaría agendar una sesión.
+    `;
+
+    const whatsappLink = getWhatsAppLink(message);
 
   return (
     <main className="max-w-2xl mx-auto py-16 px-6">
@@ -125,9 +127,11 @@ export default function TestPage() {
       </h1>
 
       {/* Progress */}
-      <p className="text-sm text-[var(--text-soft)] mb-6">
-        {answeredCount} / {questions.length} preguntas respondidas
-      </p>
+      {!submitted && (
+        <p className="text-sm text-[var(--text-soft)] mb-6">
+          {answeredCount} / {questions.length} preguntas respondidas
+        </p>
+      )}
 
       {!submitted ? (
         <>
@@ -226,11 +230,12 @@ export default function TestPage() {
             )}
 
             <a
-                href={whatsappLink}
-                target="_blank"
-                className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-6 py-3 rounded-xl inline-block transition"
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-6 py-3 rounded-xl inline-block transition"
             >
-                Enviar resultados y hablar con un profesional
+              Enviar resultados y hablar con un profesional
             </a>
 
             <p className="text-sm text-gray-400 mt-3">
@@ -246,14 +251,15 @@ export default function TestPage() {
                 Explorar más información
             </a>
 
+            {/* Link al SaaS - actualizar al link del SaaS una vez implementado
             <a
-                href="http://localhost:5173/welcome" //actualizar al link del SaaS una vez implementado
+                href="https://app.psicoclinicas.com" //actualizar al link del SaaS una vez implementado
                 target="_blank"
                 className="px-6 py-3 rounded-xl border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition"
             >
                 Acceder a mi espacio terapéutico
             </a>
-
+            */}
             </div>
 
         </div>

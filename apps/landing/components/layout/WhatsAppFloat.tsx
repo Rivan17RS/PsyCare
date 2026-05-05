@@ -1,15 +1,16 @@
-import { getPrimaryLink } from "@/config/booking";
+import { getWhatsAppLink } from "@/config/booking";
 
 export default function WhatsAppFloat() {
-  const link = getPrimaryLink();
+  const link = getWhatsAppLink("Hola, quisiera información sobre terapia");
 
   return (
     <a
       href={link}
       target="_blank"
-      className="fixed bottom-6 right-6 z-50 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-5 py-3 rounded-full shadow-lg text-sm transition"
+      rel="noopener noreferrer"
+      className="fixed bottom-6 right-6 z-50 bg-[var(--primary)] text-white px-5 py-3 rounded-full shadow-lg"
     >
-      Ayuda por WhatsApp
+      ¿Hablamos?
     </a>
   );
 }

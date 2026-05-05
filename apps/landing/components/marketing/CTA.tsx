@@ -16,12 +16,14 @@ export default function CTA() {
           Da el primer paso hacia tu bienestar emocional
         </p>
 
-        <Link
+        <a
           href={link}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-block bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-6 py-3 rounded-xl text-lg transition shadow-sm"
         >
-          Agendar sesión
-        </Link>
+          Agendar por WhatsApp
+        </a>
 
       </div>
     </section>

@@ -4,6 +4,8 @@ import { getPrimaryLink } from "@/config/booking";
 
 export default function Hero() {
   const link = getPrimaryLink();
+  /* flag to enable/disable booking button in hero, useful for testing */
+  const enableBooking = false;
 
   return (
     <section className="py-20 px-6 bg-[var(--background)]">
@@ -19,6 +21,7 @@ export default function Hero() {
             Acompañamiento profesional para ansiedad, estrés y bienestar emocional
           </p>
 
+        {enableBooking && (
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href={link}
@@ -27,6 +30,7 @@ export default function Hero() {
               Agendar sesión
             </Link>
 
+
             <Link
               href="/test"
               className="border px-6 py-3 rounded-xl text-lg"
@@ -34,6 +38,7 @@ export default function Hero() {
               Realizar test
             </Link>
           </div>
+        )}
 
           <p className="text-sm text-gray-400 mt-4">
             Atención confidencial • Sesiones online
