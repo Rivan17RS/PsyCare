@@ -60,4 +60,28 @@ public class AvailabilityRepository : IAvailabilityRepository
         await _context.AvailabilitySlots.AddRangeAsync(slots, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<List<AvailabilitySlot>> GetPsychologistSlotsAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime date,
+        CancellationToken cancellationToken)
+    {
+        return await _context.AvailabilitySlots
+            .Where(s =>
+                s.TenantId == tenantId &&
+                s.PsychologistId == psychologistId &&
+                s.StartTime.Date == date.Date)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(
+        AvailabilitySlot slot,
+        CancellationToken cancellationToken)
+    {
+        _context.AvailabilitySlots.Remove(slot);
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

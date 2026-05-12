@@ -18,5 +18,12 @@ public class AvailabilitySlotConfiguration : IEntityTypeConfiguration<Availabili
 
         builder.Property(s => s.IsBooked)
                .IsRequired();
+
+       builder.HasIndex(s => new
+              {
+              s.TenantId,
+              s.PsychologistId,
+              s.StartTime
+              }).IsUnique();
     }
 }

@@ -17,4 +17,14 @@ public interface IAvailabilityRepository
     Task AddSlotsAsync(
         List<AvailabilitySlot> slots,
         CancellationToken cancellationToken);
+    
+    Task<List<AvailabilitySlot>> GetPsychologistSlotsAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime date,
+        CancellationToken cancellationToken);
+    
+    Task DeleteAsync(
+        AvailabilitySlot slot,
+        CancellationToken cancellationToken);
 }
