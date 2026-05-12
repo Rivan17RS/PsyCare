@@ -1,6 +1,7 @@
 using MediatR;
+using PsyCare.Application.Availability.Commands;
 
-namespace PsyCare.Application.Appointments.Commands;
+namespace PsyCare.Application.Availability.Commands;
 
 public record GenerateAvailabilitySlotsCommand(
     Guid TenantId,

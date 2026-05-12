@@ -2,8 +2,9 @@ using MediatR;
 using PsyCare.Application.Abstractions.Persistence;
 using PsyCare.Domain.Entities;
 using PsyCare.Application.Common.Interfaces;
+using PsyCare.Application.Availability.Commands;
 
-namespace PsyCare.Application.Appointments.Commands;
+namespace PsyCare.Application.Availability.Commands;
 
 public class GenerateAvailabilitySlotsCommandHandler 
     : IRequestHandler<GenerateAvailabilitySlotsCommand>

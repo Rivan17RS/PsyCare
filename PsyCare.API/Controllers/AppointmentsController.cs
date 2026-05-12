@@ -83,16 +83,6 @@ public class AppointmentsController : ControllerBase
         return Ok(result);
     }
 
-    // Add slot generation endpoint for psychologists to create availability
-    [AuthorizePsychologist]
-    [HttpPost("generate-slots")]
-    public async Task<IActionResult> GenerateSlots(
-        GenerateAvailabilitySlotsCommand command)
-    {
-        await _mediator.Send(command);
-        return Ok();
-    }
-
     [AuthorizePatient]
     [HttpPost("cancel")]
     public async Task<IActionResult> CancelAppointment([FromQuery] Guid appointmentId)

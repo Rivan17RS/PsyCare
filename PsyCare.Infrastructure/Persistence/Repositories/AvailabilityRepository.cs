@@ -84,4 +84,63 @@ public class AvailabilityRepository : IAvailabilityRepository
 
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistsAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime startTime,
+        DateTime endTime,
+        CancellationToken cancellationToken)
+    {
+        return await _context.AvailabilitySlots
+            .AnyAsync(x =>
+                x.TenantId == tenantId &&
+                x.PsychologistId == psychologistId &&
+                x.StartTime == startTime &&
+                x.EndTime == endTime,
+                cancellationToken);
+    }
+
+    public async Task<List<AvailabilitySlot>> GetRangeAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken)
+    {
+        return await _context.AvailabilitySlots
+            .Where(x =>
+                x.TenantId == tenantId &&
+                x.PsychologistId == psychologistId &&
+                x.StartTime >= startDate &&
+                x.StartTime <= endDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task DeleteRangeAsync(
+        List<AvailabilitySlot> slots,
+        CancellationToken cancellationToken)
+    {
+        _context.AvailabilitySlots.RemoveRange(slots);
+
+        await _context.SaveChangesAsync(
+            cancellationToken);
+    }
+
+    public async Task<AvailabilitySlot?> FindByTimeAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime startTime,
+        DateTime endTime,
+        CancellationToken cancellationToken)
+    {
+        return await _context.AvailabilitySlots
+            .FirstOrDefaultAsync(x =>
+                x.TenantId == tenantId &&
+                x.PsychologistId == psychologistId &&
+                x.StartTime == startTime &&
+                x.EndTime == endTime,
+                cancellationToken);
+    }
+
 }

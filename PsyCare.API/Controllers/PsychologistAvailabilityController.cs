@@ -46,14 +46,76 @@ public class PsychologistAvailabilityController : ControllerBase
 
     [HttpPost("generate")]
     public async Task<IActionResult> GenerateAvailability(
-        GenerateAvailabilityCommand command)
+        GenerateAvailabilitySlotsRequest request)
     {
-        command.TenantId = _tenantProvider.GetTenantId();
-
-        command.PsychologistId = Guid.Parse(
+        var psychologistId = Guid.Parse(
             User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var result = await _mediator.Send(command);
+        var tenantId = _tenantProvider.GetTenantId();
+
+        var command = new GenerateAvailabilitySlotsCommand(
+            tenantId,
+            psychologistId,
+            request.Date,
+            request.StartHour,
+            request.EndHour,
+            request.SlotMinutes
+        );
+
+        await _mediator.Send(command);
+
+        return Ok();
+    }
+
+    [HttpPost("generate-range")]
+    public async Task<IActionResult> GenerateRange(
+        [FromBody] GenerateAvailabilityRangeRequest request)
+    {
+        var psychologistId = Guid.Parse(
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier)!);
+
+        var tenantId =
+            _tenantProvider.GetTenantId();
+
+        var command =
+            new GenerateAvailabilityRangeCommand(
+                tenantId,
+                psychologistId,
+                request.StartDate,
+                request.EndDate,
+                request.StartHour,
+                request.EndHour,
+                request.SlotMinutes
+            );
+
+        var result =
+            await _mediator.Send(command);
+
+        return Ok(result);
+    }
+
+    [HttpDelete("range")]
+    public async Task<IActionResult> DeleteRange(
+        [FromBody] DeleteAvailabilityRangeRequest request)
+    {
+        var psychologistId = Guid.Parse(
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier)!);
+
+        var tenantId =
+            _tenantProvider.GetTenantId();
+
+        var command =
+            new DeleteAvailabilityRangeCommand(
+                tenantId,
+                psychologistId,
+                request.StartDate,
+                request.EndDate
+            );
+
+        var result =
+            await _mediator.Send(command);
 
         return Ok(result);
     }
