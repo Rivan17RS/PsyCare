@@ -52,4 +52,13 @@ public interface IAvailabilityRepository
         DateTime startTime,
         DateTime endTime,
         CancellationToken cancellationToken);
+
+    Task<List<AvailabilitySlot>> GetAvailabilityRangeAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken);
+    
+    
 }

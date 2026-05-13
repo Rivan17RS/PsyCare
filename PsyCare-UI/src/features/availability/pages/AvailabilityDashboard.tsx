@@ -37,8 +37,6 @@ export default function AvailabilityDashboard() {
 
   const [endDate, setEndDate] = useState("");
 
-  const [processing, setProcessing] = useState(false);
-
   // Fetch availability
   useEffect(() => {
     if (!date) return;
@@ -541,24 +539,32 @@ export default function AvailabilityDashboard() {
   );
 }
 
+/// DATE HELPERS
+
 function formatHour(dateString: string) {
+
   const date = new Date(dateString);
 
   return date.toLocaleTimeString("es-CR", {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: true,
     timeZone: "America/Costa_Rica",
   });
 }
 
 function formatDateLabel(dateString: string) {
-  const date = new Date(dateString);
+
+  const [year, month, day] =
+    dateString.split("-").map(Number);
+
+  const date =
+    new Date(year, month - 1, day);
 
   return date.toLocaleDateString("es-CR", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
-    timeZone: "America/Costa_Rica",
   });
 }

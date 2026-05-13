@@ -143,4 +143,21 @@ public class AvailabilityRepository : IAvailabilityRepository
                 cancellationToken);
     }
 
+    public async Task<List<AvailabilitySlot>> GetAvailabilityRangeAsync(
+        Guid tenantId,
+        Guid psychologistId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken)
+    {
+        return await _context.AvailabilitySlots
+            .Where(x =>
+                x.TenantId == tenantId &&
+                x.PsychologistId == psychologistId &&
+                x.StartTime >= startDate &&
+                x.StartTime <= endDate)
+            .OrderBy(x => x.StartTime)
+            .ToListAsync(cancellationToken);
+    }
+
 }

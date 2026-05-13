@@ -95,6 +95,31 @@ public class PsychologistAvailabilityController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("range")]
+    public async Task<IActionResult> GetRange(
+        DateTime startDate,
+        DateTime endDate)
+    {
+        var psychologistId = Guid.Parse(
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier)!);
+
+        var tenantId =
+            _tenantProvider.GetTenantId();
+
+        var result =
+            await _mediator.Send(
+                new GetAvailabilityRangeQuery(
+                    tenantId,
+                    psychologistId,
+                    startDate,
+                    endDate
+                )
+            );
+
+        return Ok(result);
+    }
+
     [HttpDelete("range")]
     public async Task<IActionResult> DeleteRange(
         [FromBody] DeleteAvailabilityRangeRequest request)
