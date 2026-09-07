@@ -2,23 +2,23 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import apiClient from "../../../api/apiClient";
+import { useAuth } from "../../../contexts/AuthContext";
 
 import logo from "../../../assets/PsicoClinicas-logo.png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const login = async () => {
     try {
       setLoading(true);
 
-      // Login request
+      // Authenticate user
       const loginResponse = await apiClient.post(
         "/auth/login",
         {
@@ -29,41 +29,22 @@ export default function LoginPage() {
 
       const token = loginResponse.data.token;
 
-      // Store token
+      // Keep only the authentication token in localStorage.
+      // User profile data is managed by AuthContext.
       localStorage.setItem("token", token);
 
-      // Fetch authenticated user profile
-      const meResponse = await apiClient.get(
-        "/auth/me"
-      );
+      // Load the authenticated user's complete state:
+      // /auth/me -> identity, tenant and roles
+      // /Profile -> mutable profile information
+      await refreshUser();
 
-      const user = meResponse.data;
-
-      // Store user profile
-      localStorage.setItem(
-        "user",
-        JSON.stringify(user)
-      );
-
-      const roles: string[] = user.roles || [];
-
-      // Role-based navigation
-      if (roles.includes("Psychologist")) {
-        navigate("/inicio");
-
-        return;
-      }
-
-      if (roles.includes("ClinicAdmin")) {
-        navigate("/inicio");
-
-        return;
-      }
-
-      // Default patient flow
+      // All authenticated roles currently land on the dashboard.
       navigate("/inicio");
     } catch (err) {
-      console.error(err);
+      console.error("Error during login:", err);
+
+      // Do not leave a potentially invalid token behind.
+      localStorage.removeItem("token");
 
       alert("Credenciales inválidas.");
     } finally {
@@ -72,12 +53,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-80">
-        
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-80 rounded-2xl bg-white p-8 shadow-lg">
+
         {/* Logo */}
-        <div className="flex justify-center mb-4">
+        <div className="mb-4 flex justify-center">
           <img
             src={logo}
             alt="PsicoClinicas"
@@ -86,7 +66,7 @@ export default function LoginPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
           Credenciales
         </h1>
 
@@ -94,18 +74,19 @@ export default function LoginPage() {
         <div className="mb-4">
           <label
             htmlFor="email"
-            className="block text-sm text-gray-700 mb-2"
+            className="mb-2 block text-sm text-gray-700"
           >
             Correo electrónico
           </label>
 
           <input
             id="email"
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             type="email"
             placeholder="correo@ejemplo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
         </div>
 
@@ -113,30 +94,35 @@ export default function LoginPage() {
         <div className="mb-6">
           <label
             htmlFor="password"
-            className="block text-sm text-gray-700 mb-2"
+            className="mb-2 block text-sm text-gray-700"
           >
             Contraseña
           </label>
 
           <input
             id="password"
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             type="password"
             placeholder="********"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !loading) {
+                void login();
+              }
+            }}
           />
         </div>
 
         {/* Button */}
         <button
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-400"
-          onClick={login}
+          type="button"
+          className="w-full rounded-lg bg-blue-500 py-2 text-white transition hover:bg-blue-600 disabled:bg-gray-400"
+          onClick={() => void login()}
           disabled={loading}
         >
-          {loading
-            ? "Ingresando..."
-            : "Iniciar sesión"}
+          {loading ? "Ingresando..." : "Iniciar sesión"}
         </button>
       </div>
     </div>

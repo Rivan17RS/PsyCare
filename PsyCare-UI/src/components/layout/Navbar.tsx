@@ -1,19 +1,14 @@
 import {
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import logo from "../../assets/PsicoClinicas-logo.png";
+import { useAuth } from "../../contexts/AuthContext";
 
-type User = {
-  fullName?: string;
-  roles?: string[];
-  profileImageUrl?: string;
-};
+import logo from "../../assets/PsicoClinicas-logo.png";
 
 function getRoleLabel(roles: string[]) {
   if (roles.includes("Psychologist")) {
@@ -62,22 +57,9 @@ export default function Navbar() {
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Get persisted user
-  const user: User = useMemo(() => {
-    const storedUser = localStorage.getItem("user");
+  const { user, logout: logoutUser } = useAuth();
 
-    if (!storedUser) {
-      return {};
-    }
-
-    try {
-      return JSON.parse(storedUser);
-    } catch {
-      return {};
-    }
-  }, []);
-
-  const roles = user.roles || [];
+  const roles = user?.roles || [];
 
   const isPsychologist =
     roles.includes("Psychologist");
@@ -89,7 +71,7 @@ export default function Navbar() {
     roles.includes("Patient");
 
   const roleLabel = getRoleLabel(roles);
-  const initials = getInitials(user.fullName);
+  const initials = getInitials(user?.fullName);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -141,8 +123,7 @@ export default function Navbar() {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logoutUser();
 
     setIsProfileOpen(false);
 
@@ -271,11 +252,11 @@ export default function Navbar() {
               className="flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100"
             >
               {/* Avatar */}
-              {user.profileImageUrl ? (
+              {user?.profileImageUrl ? (
                 <img
-                  src={user.profileImageUrl}
+                  src={user?.profileImageUrl}
                   alt={
-                    user.fullName ||
+                    user?.fullName ||
                     "Perfil de usuario"
                   }
                   className="h-10 w-10 rounded-full border border-gray-200 object-cover"
@@ -292,7 +273,7 @@ export default function Navbar() {
               {/* User information */}
               <div className="hidden text-left lg:block">
                 <p className="max-w-[180px] truncate text-sm font-semibold text-gray-800">
-                  {user.fullName ||
+                  {user?.fullName ||
                     "Usuario"}
                 </p>
 
@@ -329,13 +310,13 @@ export default function Navbar() {
                 {/* User summary */}
                 <div className="border-b border-gray-100 px-4 py-4">
                   <div className="flex items-center gap-3">
-                    {user.profileImageUrl ? (
+                    {user?.profileImageUrl ? (
                       <img
                         src={
-                          user.profileImageUrl
+                          user?.profileImageUrl
                         }
                         alt={
-                          user.fullName ||
+                          user?.fullName ||
                           "Perfil"
                         }
                         className="h-11 w-11 rounded-full object-cover"
@@ -348,7 +329,7 @@ export default function Navbar() {
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-gray-800">
-                        {user.fullName ||
+                        {user?.fullName ||
                           "Usuario"}
                       </p>
 
