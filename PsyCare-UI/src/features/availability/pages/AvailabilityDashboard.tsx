@@ -24,10 +24,12 @@ export default function AvailabilityDashboard() {
   const [slots, setSlots] = useState<Slot[]>([]);
 
   const [loading, setLoading] = useState(false);
-
+  
   const [startHour, setStartHour] = useState(8);
-
-  const [endHour, setEndHour] = useState(17);
+  const [startPeriod, setStartPeriod] = useState<"AM" | "PM">("AM");
+  
+  const [endHour, setEndHour] = useState(5);
+  const [endPeriod, setEndPeriod] = useState<"AM" | "PM">("PM");
 
   const [slotMinutes, setSlotMinutes] = useState(30);
 
@@ -47,9 +49,9 @@ export default function AvailabilityDashboard() {
   const fetchAvailability = async () => {
     try {
       setLoading(true);
-
+      // DO NOT MODIFY - This function intends to fetch CR timezone, conversion happens in the backend
       const data = await getAvailability(
-        `${date}T00:00:00Z`
+        `${date}T00:00:00.000Z`
       );
 
       const sorted = data.sort(
@@ -69,13 +71,35 @@ export default function AvailabilityDashboard() {
     }
   };
 
+  function convertTo24Hour(
+    hour: number,
+    period: "AM" | "PM"
+    ) {
+    if (period === "AM") {
+        return hour === 12 ? 0 : hour;
+    }
+
+    return hour === 12 ? 12 : hour + 12;
+    }
+
+
   const handleGenerate = async () => {
     try {
 
+        const startHour24 = convertTo24Hour(
+            startHour,
+            startPeriod
+        );
+
+        const endHour24 = convertTo24Hour(
+            endHour,
+            endPeriod
+        );
+
         // Validation
-        if (startHour >= endHour) {
-        alert(
-            "La hora final debe ser mayor a la inicial."
+        if (startHour24 >= endHour24) {
+          alert(
+            "La hora final debe ser mayor a la hora inicial."
         );
 
         return;
@@ -89,17 +113,15 @@ export default function AvailabilityDashboard() {
 
             return;
         }
-
+        // FRONTEND UTC CONVERSION
         await generateAvailability({
-            date: `${date}T00:00:00Z`,
-            startHour,
-            endHour,
+            date: `${date}T06:00:00.000Z`,
+            startHour: startHour24,
+            endHour: endHour24,
             slotMinutes,
         });
 
-        setMode("single");
-
-        setDate(startDate);
+        await fetchAvailability();
 
         alert(
             "Horarios generados correctamente."
@@ -127,16 +149,12 @@ export default function AvailabilityDashboard() {
 
         const result =
         await generateAvailabilityRange({
-            startDate:
-            `${startDate}T00:00:00Z`,
-
-            endDate:
-            `${endDate}T00:00:00Z`,
-
-            startHour,
-            endHour,
+            startDate: `${startDate}T06:00:00.000Z`,
+            endDate: `${endDate}T06:00:00.000Z`,
+            startHour: startHour24,
+            endHour: endHour24,
             slotMinutes,
-        });
+        });;
 
         alert(
         `Horarios generados.\n\nCreados: ${result.created}\nDuplicados omitidos: ${result.skipped}`
@@ -166,10 +184,10 @@ export default function AvailabilityDashboard() {
         const result =
             await deleteAvailabilityRange({
             startDate:
-                `${date}T00:00:00Z`,
+                `${date}T00:00:00.000Z`,
 
             endDate:
-                `${date}T23:59:59Z`,
+                `${date}T23:59:59.000Z`,
             });
 
         setMode("single");
@@ -203,10 +221,10 @@ export default function AvailabilityDashboard() {
         const result =
         await deleteAvailabilityRange({
             startDate:
-            `${startDate}T00:00:00Z`,
+            `${startDate}T00:00:00.000Z`,
 
             endDate:
-            `${endDate}T23:59:59Z`,
+            `${endDate}T23:59:59.000Z`,
         });
 
         alert(
@@ -374,49 +392,87 @@ export default function AvailabilityDashboard() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
-                {/* Start */}
+                {/* Start Hour */}
                 <div>
                     <label
-                    htmlFor="startHour"
-                    className="block text-sm mb-2"
+                        htmlFor="startHour"
+                        className="block text-sm mb-2"
                     >
-                    Hora inicio
+                        Hora inicio
                     </label>
 
-                    <input
-                    id="startHour"
-                    type="number"
-                    value={startHour}
-                    min={0}
-                    max={23}
-                    onChange={(e) =>
-                        setStartHour(Number(e.target.value))
-                    }
-                    className="border rounded-lg p-3 w-full"
-                    />
+                    <div className="flex gap-2">
+                        <select
+                        id="startHour"
+                        value={startHour}
+                        onChange={(e) =>
+                            setStartHour(Number(e.target.value))
+                        }
+                        className="border rounded-lg p-3 w-full"
+                        >
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                            (hour) => (
+                            <option key={hour} value={hour}>
+                                {hour}
+                            </option>
+                            )
+                        )}
+                        </select>
+
+                        <select
+                            id="startPeriod"
+                            value={startPeriod}
+                            onChange={(e) =>
+                                setStartPeriod(e.target.value as "AM" | "PM")
+                            }
+                            className="border rounded-lg p-3 w-28"
+                        >
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* End */}
                 <div>
                     <label
-                    htmlFor="endHour"
-                    className="block text-sm mb-2"
+                        htmlFor="endHour"
+                        className="block text-sm mb-2"
                     >
-                    Hora fin
+                        Hora fin
                     </label>
 
-                    <input
-                    id="endHour"
-                    type="number"
-                    value={endHour}
-                    min={1}
-                    max={24}
-                    onChange={(e) =>
-                        setEndHour(Number(e.target.value))
-                    }
-                    className="border rounded-lg p-3 w-full"
-                    />
-                </div>
+                    <div className="flex gap-2">
+                        <select
+                        id="endHour"
+                        value={endHour}
+                        onChange={(e) =>
+                            setEndHour(Number(e.target.value))
+                        }
+                        className="border rounded-lg p-3 w-full"
+                        >
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                            (hour) => (
+                            <option key={hour} value={hour}>
+                                {hour}
+                            </option>
+                            )
+                        )}
+                        </select>
+
+                        <select
+                            id="endPeriod"
+                            value={endPeriod}
+                            onChange={(e) =>
+                                setEndPeriod(e.target.value as "AM" | "PM")
+                            }
+                            className="border rounded-lg p-3 w-28"
+                        >
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    </div>
 
                 {/* Duration */}
                 <div>
