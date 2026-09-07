@@ -59,5 +59,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
         builder.Entity<Invitation>()
             .HasQueryFilter(i => i.TenantId == CurrentTenantId);
+
+        builder.Entity<PsychologistProfile>()
+            .HasQueryFilter(p => p.TenantId == CurrentTenantId);
     }
 }
