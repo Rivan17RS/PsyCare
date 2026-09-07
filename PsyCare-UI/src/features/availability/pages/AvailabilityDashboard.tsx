@@ -82,6 +82,9 @@ export default function AvailabilityDashboard() {
     return hour === 12 ? 12 : hour + 12;
     }
 
+    function convertCostaRicaHourToUtc(hour24: number) {
+        return hour24 + 6;
+    }
 
   const handleGenerate = async () => {
     try {
@@ -95,6 +98,9 @@ export default function AvailabilityDashboard() {
             endHour,
             endPeriod
         );
+
+        const startHourUtc = convertCostaRicaHourToUtc(startHour24);
+        const endHourUtc = convertCostaRicaHourToUtc(endHour24);
 
         // Validation
         if (startHour24 >= endHour24) {
@@ -115,9 +121,9 @@ export default function AvailabilityDashboard() {
         }
         // FRONTEND UTC CONVERSION
         await generateAvailability({
-            date: `${date}T06:00:00.000Z`,
-            startHour: startHour24,
-            endHour: endHour24,
+            date: `${date}T00:00:00.000Z`,
+            startHour: startHourUtc,
+            endHour: endHourUtc,
             slotMinutes,
         });
 
@@ -149,12 +155,12 @@ export default function AvailabilityDashboard() {
 
         const result =
         await generateAvailabilityRange({
-            startDate: `${startDate}T06:00:00.000Z`,
-            endDate: `${endDate}T06:00:00.000Z`,
-            startHour: startHour24,
-            endHour: endHour24,
+            startDate: `${startDate}T00:00:00.000Z`,
+            endDate: `${endDate}T00:00:00.000Z`,
+            startHour: startHourUtc,
+            endHour: endHourUtc,
             slotMinutes,
-        });;
+        });
 
         alert(
         `Horarios generados.\n\nCreados: ${result.created}\nDuplicados omitidos: ${result.skipped}`
@@ -384,7 +390,7 @@ export default function AvailabilityDashboard() {
             </h2>
             <div className="mb-10">
                 <p className="text-sm text-gray-500 mb-2">
-                    Crea tus horarios utilizando el formato de hora militar. 
+                    Crea tus horarios utilizando el formato standard AM/PM. 
                     El rango de horas y la duración
                     de cada cita se pueden configurar a tu
                     conveniencia.
@@ -518,7 +524,7 @@ export default function AvailabilityDashboard() {
                     onClick={handleDeleteRange}
                     className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg"
                 >
-                    Limpiar Todos
+                    Eliminar Todas las Citas
                 </button>
             </div>
         </div>
