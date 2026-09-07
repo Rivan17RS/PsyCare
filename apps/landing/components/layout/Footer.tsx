@@ -56,7 +56,7 @@ export default function Footer() {
 
             <div className="mt-3 flex items-start gap-4">
               <img
-                src="/branding/rivansoft-logo.svg"
+                src="/branding/rivansoft-logo-dark.png"
                 alt="RivanSoft"
                 className="w-36 opacity-45 grayscale"
               />
