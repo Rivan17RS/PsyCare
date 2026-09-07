@@ -54,7 +54,7 @@ export default function Footer() {
               Plataforma
             </h3>
 
-            <div className="mt-3 flex items-start gap-4">
+            <div className="mt-3 flex items-center gap-4">
               <img
                 src="/branding/rivansoft-logo-dark.png"
                 alt="RivanSoft"
