@@ -37,6 +37,8 @@ builder.Services.AddScoped<IAppDbContext>(provider =>
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<IAccountService, AccountService>();
+
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 builder.Services.AddScoped<JwtTokenService>();
