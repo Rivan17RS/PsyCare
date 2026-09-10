@@ -5,6 +5,7 @@ using PsyCare.Application.Common.Interfaces;
 using PsyCare.Domain.Entities;
 using PsyCare.Infrastructure.Persistence;
 using PsyCare.API.Security;
+using PsyCare.API.DTOs;
 
 namespace PsyCare.API.Controllers;
 
@@ -59,5 +60,29 @@ public class InvitationController : ControllerBase
             .ToListAsync();
 
         return Ok(invitations);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{token}")]
+    public async Task<IActionResult> GetInvitation(string token)
+    {
+        var invitation = await _context.Invitations
+            .FirstOrDefaultAsync(i => i.Token == token);
+
+        if (invitation == null)
+            return NotFound("Invitation not found.");
+
+        if (invitation.IsUsed)
+            return BadRequest("Invitation already used.");
+
+        if (invitation.ExpiresAt < DateTime.UtcNow)
+            return BadRequest("Invitation expired.");
+
+        return Ok(new InvitationDetailsResponse
+        {
+            Email = invitation.Email,
+            Role = invitation.Role,
+            ExpiresAt = invitation.ExpiresAt
+        });
     }
 }

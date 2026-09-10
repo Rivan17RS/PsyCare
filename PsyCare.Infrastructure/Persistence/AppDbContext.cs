@@ -39,6 +39,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<AvailabilitySlot> AvailabilitySlots => Set<AvailabilitySlot>();
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Invitation> Invitations => Set<Invitation>();
+    public DbSet<PsychologistProfile> PsychologistProfiles => Set<PsychologistProfile>();
     IQueryable<IUser> IAppDbContext.Users => base.Users;
 
     protected override void OnModelCreating(ModelBuilder builder)

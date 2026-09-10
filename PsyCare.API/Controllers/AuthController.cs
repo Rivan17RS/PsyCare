@@ -6,6 +6,7 @@ using PsyCare.API.DTOs;
 using PsyCare.Infrastructure.Services;
 using PsyCare.Infrastructure.Identity;
 using PsyCare.Infrastructure.Persistence;
+using PsyCare.Domain.Entities;
 using System.Security.Claims;
 
 namespace PsyCare.API.Controllers;
@@ -122,6 +123,12 @@ public class AuthController : ControllerBase
         if (invitation.ExpiresAt < DateTime.UtcNow)
             return BadRequest("Invitation expired.");
 
+        if (invitation.ExpiresAt < DateTime.UtcNow)
+            return BadRequest("Invitation expired.");
+
+        if (invitation.Role != "Psychologist")
+            return BadRequest("Invalid invitation role.");
+
         var user = new ApplicationUser
         {
             UserName = invitation.Email,
@@ -136,6 +143,15 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors);
 
         await _userManager.AddToRoleAsync(user, invitation.Role);
+
+        var psychologistProfile = new PsychologistProfile(
+            invitation.TenantId,
+            user.Id,
+            request.LegalIdentityNumber,
+            request.ProfessionalLicense,
+            request.Specialty);
+
+        _context.PsychologistProfiles.Add(psychologistProfile);
 
         invitation.MarkAsUsed();
 
