@@ -6,6 +6,7 @@ using PsyCare.Infrastructure.Persistence;
 using PsyCare.Infrastructure.Persistence.Repositories;
 using PsyCare.Infrastructure.Services;
 using PsyCare.Infrastructure.Identity;
+using PsyCare.Infrastructure.Storage;
 using PsyCare.Application.Abstractions.Persistence;
 using PsyCare.Application.Appointments.Commands;
 using PsyCare.Application.Common.Interfaces;
@@ -40,6 +41,22 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+
+var storageRelativePath = builder.Configuration["Storage:RootPath"]
+    ?? throw new InvalidOperationException(
+        "Storage:RootPath configuration is missing.");
+
+var webRootPath = builder.Environment.WebRootPath
+    ?? Path.Combine(
+        builder.Environment.ContentRootPath,
+        "wwwroot");
+
+var storageRootPath = Path.Combine(
+    webRootPath,
+    storageRelativePath);
+
+builder.Services.AddScoped<IFileStorage>(_ =>
+    new LocalFileStorage(storageRootPath));
 
 builder.Services.AddScoped<JwtTokenService>();
 
@@ -167,6 +184,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 var summaries = new[]
 {
