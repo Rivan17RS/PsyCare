@@ -10,6 +10,10 @@ import HistorialCitas from "./features/appointments/pages/HistorialCitas";
 import AvailabilityDashboard from "./features/availability/pages/AvailabilityDashboard";
 import ProfilePage from "./features/account/pages/ProfilePage";
 import EditProfilePage from "./features/account/pages/EditProfilePage";
+import PsychologistRegistrationPage from "./features/psychologists/pages/PsychologistRegistrationPage";
+import PsychologistProfessionalProfilePage from "./features/psychologists/pages/PsychologistProfessionalProfilePage";
+
+
 
 function App() {
   return (
@@ -28,6 +32,14 @@ function App() {
         element={
           <Layout>
             <ProfilePage />
+          </Layout>}
+      />
+
+      <Route
+        path="/perfil/profesional"
+        element={
+          <Layout>
+            <PsychologistProfessionalProfilePage />
           </Layout>
         }
       />
@@ -37,8 +49,12 @@ function App() {
         element={
           <Layout>
             <EditProfilePage />
-          </Layout>
-        }
+          </Layout>}
+      />
+
+      <Route
+        path="/registrar-psicologo"
+        element={<PsychologistRegistrationPage />}
       />
 
     </Routes>

@@ -408,6 +408,42 @@ export default function Navbar() {
 
                     <span>Editar perfil</span>
                   </button>
+
+                  {isPsychologist && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() =>
+                        handleProfileNavigation(
+                          "/perfil/profesional"
+                        )
+                      }
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+                    >
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 3l8 4v5c0 4.5-3.1 7.8-8 9-4.9-1.2-8-4.5-8-9V7l8-4z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9 12l2 2 4-4"
+                        />
+                      </svg>
+
+                      <span>Perfil profesional</span>
+                    </button>
+                  )}
+
                 </div>
 
                 {/* Logout */}

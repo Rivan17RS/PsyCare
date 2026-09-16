@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import apiClient from "../../../api/apiClient";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -12,6 +12,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const registrationCompleted =
+    location.state?.registrationCompleted === true;
+
   const { refreshUser } = useAuth();
 
   const login = async () => {
@@ -69,6 +74,18 @@ export default function LoginPage() {
         <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
           Credenciales
         </h1>
+
+        {registrationCompleted && (
+          <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <p className="font-medium">
+              Registro completado correctamente.
+            </p>
+
+            <p className="mt-1">
+              Ya puedes iniciar sesión con tu nueva cuenta.
+            </p>
+          </div>
+        )}
 
         {/* Email */}
         <div className="mb-4">
