@@ -18,6 +18,19 @@ function getSexLabel(sex: Sex) {
   }
 }
 
+function getProfileCompletion(profile: PsychologistProfile) {
+  const completedFields = [
+    Boolean(profile.legalIdentityNumber),
+    Boolean(profile.professionalLicense),
+    Boolean(profile.specialty),
+    Boolean(profile.biography?.trim()),
+    profile.sex !== 0,
+    Boolean(profile.profileImageUrl?.trim()),
+  ].filter(Boolean).length;
+
+  return Math.round((completedFields / 6) * 100);
+}
+
 export default function PsychologistProfessionalProfilePage() {
   const [profile, setProfile] =
     useState<PsychologistProfile | null>(null);
@@ -157,6 +170,8 @@ export default function PsychologistProfessionalProfilePage() {
     return null;
   }
 
+  const profileCompletion = getProfileCompletion(profile);
+
   return (
     <div className="mx-auto max-w-3xl">
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
@@ -186,6 +201,46 @@ export default function PsychologistProfessionalProfilePage() {
         </div>
 
         <div className="px-6 py-6 sm:px-8">
+          {profileCompletion < 100 && (
+            <div className="mb-8 rounded-xl border border-green-100 bg-green-50 px-5 py-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Completa tu perfil profesional
+                  </p>
+
+                  <p className="mt-1 text-sm text-gray-600">
+                    Agrega la información que falta para completar tu presentación profesional.
+                  </p>
+                </div>
+
+                <div className="shrink-0 text-sm font-semibold text-green-700">
+                  {profileCompletion}%
+                </div>
+              </div>
+
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-green-100">
+                <div
+                  className="h-full rounded-full bg-green-600 transition-all duration-300"
+                  style={{ width: `${profileCompletion}%` }}
+                />
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                {!profile.biography?.trim() && (
+                  <span>• Agrega una biografía</span>
+                )}
+
+                {profile.sex === 0 && (
+                  <span>• Selecciona tu sexo</span>
+                )}
+
+                {!profile.profileImageUrl?.trim() && (
+                  <span>• Agrega una foto de perfil</span>
+                )}
+              </div>
+            </div>
+          )}
           {success && (
             <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
               {success}
